@@ -35,6 +35,8 @@ import Orcamento from './pages/Orcamento';
 import LpFuturoBusca from './pages/LpFuturoBusca';
 import Solucao360 from './pages/Solucao360';
 import ServicosMidia from './pages/ServicosMidia';
+import ServicosProjetos from './pages/ServicosProjetos';
+import ServicosProcesso from './pages/ServicosProcesso';
 
 // Commercial Landing Pages Demo Examples
 import LpMedicos from './pages/l/LpMedicos';
@@ -69,6 +71,10 @@ function ScrollToTop() {
       document.title = "Sobre Nós | AGÊNCIA OZ - Performance e Segurança";
     } else if (pathname === '/servicos') {
       document.title = "Nossos Serviços de Elite | AGÊNCIA OZ";
+    } else if (pathname === '/servicos/projetos' || pathname === '/projetos') {
+      document.title = "Vitrine de Projetos e Casos Técnicos | AGÊNCIA OZ";
+    } else if (pathname === '/servicos/processo' || pathname === '/processo') {
+      document.title = "Nosso Processo: Como Desenvolvemos | AGÊNCIA OZ";
     } else if (pathname === '/servicos/landingpages') {
       document.title = "Landing Pages de Alta Conversão | AGÊNCIA OZ";
     } else if (pathname === '/servicos/hospedagem') {
@@ -145,6 +151,12 @@ function AppContent() {
           
           {/* 3. Serviços Overview */}
           <Route path="/servicos" element={<Servicos />} />
+          
+          {/* 3.0. Projetos & Processo (Agrupados em Serviços conforme Wireframe) */}
+          <Route path="/servicos/projetos" element={<ServicosProjetos />} />
+          <Route path="/projetos" element={<ServicosProjetos />} />
+          <Route path="/servicos/processo" element={<ServicosProcesso />} />
+          <Route path="/processo" element={<ServicosProcesso />} />
           
           {/* 3.1. Solução 360 Graus */}
           <Route path="/360-graus" element={<Solucao360 />} />

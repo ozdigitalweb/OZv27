@@ -231,6 +231,34 @@ export default function OzzyChatWidget() {
     localStorage.setItem('ozzy_chat_history_v2', JSON.stringify(messages));
   }, [messages]);
 
+  // Global listener to open Ozzy chat from buttons across the site
+  useEffect(() => {
+    const handleOpenChatEvent = (event: CustomEvent<{ prompt?: string }>) => {
+      setIsOpen(true);
+      setShowNotificationBubble(false);
+      if (event.detail && event.detail.prompt) {
+        setTimeout(() => {
+          handleSend(event.detail.prompt);
+        }, 200);
+      } else {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 150);
+      }
+    };
+
+    window.addEventListener('open-ozzy-chat' as any, handleOpenChatEvent as any);
+    
+    // Also expose helper on window
+    (window as any).openOzzyChat = (prompt?: string) => {
+      window.dispatchEvent(new CustomEvent('open-ozzy-chat', { detail: { prompt } }));
+    };
+
+    return () => {
+      window.removeEventListener('open-ozzy-chat' as any, handleOpenChatEvent as any);
+    };
+  }, [messages, leadData]);
+
   const playChime = (type: 'send' | 'receive') => {
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;

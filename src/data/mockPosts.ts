@@ -16,6 +16,85 @@ export interface BlogPost {
 
 export const mockPosts: BlogPost[] = [
   {
+    id: 101,
+    title: "Design de Produto: do briefing ao lançamento",
+    slug: "design-de-produto-do-briefing-ao-lancamento",
+    excerpt: "Como estruturar o ciclo de desenvolvimento de software centrado no usuário, reduzindo retrabalho e transformando requisitos de negócio em interfaces intuitivas e escaláveis.",
+    date: "8 de Novembro, 2026",
+    category: "UX Design",
+    featuredImage: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?fm=webp&fit=crop&w=800&q=75",
+    author: {
+      name: "Marcelo Krauthein",
+      role: "Diretor de Tecnologia & UX na Oz Digital",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?fm=webp&fit=crop&w=100&h=100&q=70"
+    },
+    content: `Transformar uma ideia bruta em um produto digital eficiente exige método, clareza técnica e foco absoluto na experiência de quem vai utilizar o sistema. Na **Oz Digital**, com mais de 20 anos desenvolvendo sistemas e soluções web, consolidamos uma abordagem orientada a eliminar ruídos entre a estratégia de negócio e a linha de código.
+
+---
+
+## 1. Entender o Negócio e as Dores Reais
+
+O primeiro passo de qualquer produto não é o código ou o design visual, mas a **compreensão profunda das metas comerciais e dos gargalos operacionais**. 
+
+* **Mapeamento de stakeholders**: Quem toma a decisão e quem opera a ferramenta diariamente?
+* **Identificação de fricções**: Onde os clientes atuais abandonam o processo? Onde a equipe perde tempo em planilhas dispersas?
+* **Definição de métricas de sucesso (KPIs)**: Redução de tempo de atendimento, aumento de conversão ou eliminação de tarefas manuais.
+
+## 2. Organizar Fluxos e Arquitetura de Informação (UX)
+
+Antes de abrir ferramentas visuais ou frameworks, desenhamos a **jornada do usuário (User Journey)** e o mapa de rotas.
+
+1. **Wireframes de Baixa Fidelidade**: Rascunhos rápidos para testar a hierarquia visual e a lógica dos passos.
+2. **Prototipação Interativa**: Simulação real de cliques, validação de campos e testes de usabilidade com usuários reais.
+3. **Design System Consistente**: Componentes reutilizáveis, garantindo velocidade de desenvolvimento e facilidade de manutenção futura.
+
+## 3. Desenvolvimento Ágil e Integrações (React + Express)
+
+Com a arquitetura aprovada, a engenharia entra em ação com padrões modernos e desacoplados:
+* **Frontend Componentizado**: Interfaces ultrarrápidas em React com carregamento assíncrono.
+* **APIs Robustas em Node/Express**: Endpoints documentados, autenticação segura e conexões com gateways e CRMs.
+* **Containerização com Docker**: Ambientes padronizados de desenvolvimento, homologação e produção sem surpresas.
+
+## 4. Testes, Homologação e Lançamento Assistido
+
+Nenhum software é publicado sem validação rigorosa de segurança, performance e compatibilidade em diferentes dispositivos móveis. Acompanhamos os primeiros dias pós-lançamento monitorando métricas e garantindo suporte direto via WhatsApp.`
+  },
+  {
+    id: 102,
+    title: "Por que sua PME precisa de um sistema sob medida",
+    slug: "por-que-sua-pme-precisa-de-um-sistema",
+    excerpt: "Sistemas engessados e planilhas paralelas limitam o crescimento da sua empresa. Descubra quando vale a pena investir em um software web sob medida com foco em automação e produtividade.",
+    date: "5 de Novembro, 2026",
+    category: "Tecnologia",
+    featuredImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?fm=webp&fit=crop&w=800&q=75",
+    author: {
+      name: "Marcelo Krauthein",
+      role: "Diretor de Tecnologia & UX na Oz Digital",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?fm=webp&fit=crop&w=100&h=100&q=70"
+    },
+    content: `Muitas pequenas e médias empresas (PMEs) iniciam suas operações utilizando planilhas do Excel ou softwares de prateleira genéricos. Com o passar do tempo, o negócio cresce, os processos se tornam mais complexos e essas ferramentas começam a gerar gargalos graves: informações duplicadas, erros manuais de digitação e falta de visibilidade em tempo real.
+
+---
+
+## Os Sinais de que as Planilhas Não São Mais Suficientes
+
+* **Retrabalho constante**: A mesma informação precisa ser cadastrada no financeiro, no estoque e no atendimento.
+* **Falta de controle de permissões**: Qualquer colaborador pode acidentalmente alterar fórmulas ou acessar dados confidenciais.
+* **Dificuldade de acesso remoto**: Sistemas locais antigos que não funcionam no celular ou exigem VPNs lentas e instáveis.
+* **Perda de clientes por lentidão no retorno**: Propostas comerciais e ordens de serviço demoram horas para serem emitidas.
+
+## A Vantagem de um Software Web Sob Medida
+
+Desenvolver uma plataforma sob medida para a sua operação não significa gastar rios de dinheiro, mas **investir exatamente no que a sua empresa precisa, sem mensalidades abusivas por usuário**.
+
+1. **Aderência Total aos Seus Processos**: O software se adapta ao seu fluxo, e não o contrário.
+2. **Acesso Seguro em Nuvem**: Painel responsivo que você e sua equipe acessam de qualquer navegador ou smartphone.
+3. **Automação Inteligente**: Disparo automático de e-mails, emissão de propostas em PDF e integração direta com WhatsApp.
+4. **Escalabilidade**: O sistema cresce conforme o seu volume de vendas aumenta, sustentado por containers Docker e banco de dados confiável.
+
+Na **Oz Digital**, desenhamos sistemas com foco na simplicidade de uso, garantindo que qualquer colaborador aprenda a operar o sistema em poucos minutos.`
+  },
+  {
     id: 17,
     title: "IA na Vida Comum: Como a Inteligência Artificial Já Faz Parte da Sua Rotina Sem Você Perceber",
     slug: "ia-na-vida-comum-como-faz-parte-da-sua-rotina",

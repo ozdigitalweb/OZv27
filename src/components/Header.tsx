@@ -77,7 +77,7 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-7" aria-label="Menu Principal">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-7" aria-label="Menu Principal">
             <NavLink 
               to="/" 
               className={({ isActive }) => 
@@ -86,10 +86,10 @@ export default function Header() {
                 }`
               }
             >
-              Início
+              Home
             </NavLink>
 
-            {/* Sobre Nós Dropdown */}
+            {/* Sobre Dropdown */}
             <div className="relative group/dropdown">
               <button
                 className={`flex items-center gap-1 font-medium text-sm transition-all hover:text-orange-500 focus:outline-none pb-1 border-b-2 ${
@@ -98,7 +98,7 @@ export default function Header() {
                 onClick={() => setAboutDropdown(!aboutDropdown)}
                 onMouseEnter={() => setAboutDropdown(true)}
               >
-                Sobre Nós
+                Sobre
                 <ChevronDown className="h-4 w-4 transition-transform group-hover/dropdown:rotate-180" />
               </button>
               
@@ -114,7 +114,7 @@ export default function Header() {
                     }`
                   }
                 >
-                  Sobre a Agência
+                  Sobre a Oz Digital
                 </NavLink>
                 <NavLink
                   to="/clientes"
@@ -129,11 +129,11 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Services Dropdown */}
+            {/* Services Dropdown - Conforme Wireframe Seção 02: Projetos e Processo agrupados em Serviços */}
             <div className="relative group/dropdown">
               <button
                 className={`flex items-center gap-1 font-medium text-sm transition-all hover:text-orange-500 focus:outline-none pb-1 border-b-2 ${
-                  location.pathname.startsWith('/servicos') ? 'text-orange-500 border-orange-500 font-bold' : 'text-slate-600 border-transparent'
+                  location.pathname.startsWith('/servicos') || location.pathname === '/projetos' || location.pathname === '/processo' ? 'text-orange-500 border-orange-500 font-bold' : 'text-slate-600 border-transparent'
                 }`}
                 onClick={() => setServicesDropdown(!servicesDropdown)}
                 onMouseEnter={() => setServicesDropdown(true)}
@@ -143,37 +143,99 @@ export default function Header() {
               </button>
               
               <div 
-                className="absolute left-0 mt-2 w-64 rounded-xl bg-white shadow-xl border border-slate-200 py-2 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 transform translate-y-1 group-hover/dropdown:translate-y-0 z-50"
+                className="absolute left-0 mt-2 w-72 rounded-2xl bg-white shadow-2xl border border-slate-200 p-2 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 transform translate-y-1 group-hover/dropdown:translate-y-0 z-50 divide-y divide-slate-100"
                 onMouseLeave={() => setServicesDropdown(false)}
               >
-                {services.map((service) => (
+                {/* Destaques Wireframe: Visão Geral, Projetos, Processo */}
+                <div className="pb-2 space-y-1">
+                  <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                    Visão Geral & Método
+                  </span>
                   <NavLink
-                    key={service.path}
-                    to={service.path}
-                    end={service.path === '/servicos'}
+                    to="/servicos"
+                    end
                     className={({ isActive }) =>
-                      `block px-4 py-2.5 text-sm font-medium transition-colors hover:bg-orange-50/60 hover:text-orange-600 ${
-                        isActive ? 'text-orange-600 font-bold bg-orange-50/70' : 'text-slate-600'
+                      `block px-3 py-2 text-sm font-bold rounded-lg transition-colors hover:bg-blue-50 hover:text-blue-700 ${
+                        isActive ? 'text-blue-700 bg-blue-50/80' : 'text-slate-800'
                       }`
                     }
                   >
-                    {service.label}
+                    Visão Geral de Serviços
                   </NavLink>
-                ))}
+                  <NavLink
+                    to="/servicos/projetos"
+                    className={({ isActive }) =>
+                      `block px-3 py-2 text-sm font-bold rounded-lg transition-colors hover:bg-orange-50 hover:text-orange-600 flex items-center justify-between ${
+                        isActive ? 'text-orange-600 bg-orange-50/80' : 'text-slate-800'
+                      }`
+                    }
+                  >
+                    <span>Vitrine de Projetos</span>
+                    <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full uppercase">Cases</span>
+                  </NavLink>
+                  <NavLink
+                    to="/servicos/processo"
+                    className={({ isActive }) =>
+                      `block px-3 py-2 text-sm font-bold rounded-lg transition-colors hover:bg-emerald-50 hover:text-emerald-700 flex items-center justify-between ${
+                        isActive ? 'text-emerald-700 bg-emerald-50/80' : 'text-slate-800'
+                      }`
+                    }
+                  >
+                    <span>Nosso Processo</span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">React // Express</span>
+                  </NavLink>
+                </div>
+
+                {/* Páginas de Serviço Individual */}
+                <div className="pt-2 space-y-0.5">
+                  <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                    Soluções Digitais
+                  </span>
+                  <NavLink
+                    to="/servicos/wordpress"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    Sites Institucionais & WordPress
+                  </NavLink>
+                  <NavLink
+                    to="/servicos/landingpages"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    Landing Pages de Alta Conversão
+                  </NavLink>
+                  <NavLink
+                    to="/servicos/hospedagem"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    Hospedagem Cloud cPanel NVMe
+                  </NavLink>
+                  <NavLink
+                    to="/360-graus"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    Solução 360° (Auxílio Geral)
+                  </NavLink>
+                  <NavLink
+                    to="/servicos/seo"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    SEO / GEO Posicionamento
+                  </NavLink>
+                  <NavLink
+                    to="/servicos/midia"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    Mídia & Assistente Virtual IA
+                  </NavLink>
+                  <NavLink
+                    to="/servicos/streaming"
+                    className="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    PROVOX Rádio & Som Ambiente
+                  </NavLink>
+                </div>
               </div>
             </div>
-
-            {/* 360º Direct Menu Item */}
-            <NavLink 
-              to="/360-graus" 
-              className={({ isActive }) => 
-                `font-semibold text-sm transition-all hover:text-orange-500 flex items-center gap-1 ${
-                  isActive ? 'text-orange-500 border-b-2 border-orange-500 pb-1 font-bold' : 'text-slate-600 pb-1 border-b-2 border-transparent'
-                }`
-              }
-            >
-              <span>360º</span>
-            </NavLink>
 
             <NavLink 
               to="/blog" 
@@ -197,38 +259,25 @@ export default function Header() {
               Contato
             </NavLink>
 
-            <NavLink 
-              to="/promocao" 
-              className={({ isActive }) => 
-                `font-bold text-sm transition-all text-orange-600 hover:text-orange-700 pb-1 border-b-2 flex items-center gap-1.5 ${
-                  isActive ? 'border-orange-500' : 'border-transparent hover:border-orange-500'
-                }`
-              }
+            {/* Botão WhatsApp em destaque ao lado de Contato */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/35 transition-all hover:-translate-y-0.5 active:scale-95 group ml-1 border border-emerald-400/40"
+              id="header-whatsapp-cta-btn"
+              title="Conversar diretamente pelo WhatsApp com a OZ Digital"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-100 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
               </span>
-              Promoção
-            </NavLink>
+              <svg className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              </svg>
+              <span>WhatsApp</span>
+            </a>
           </nav>
-
-          {/* Action block with Local Office Metadata & WhatsApp CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            <div className="text-right hidden xl:block pr-1">
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Canoas, RS</p>
-              <p className="text-sm font-bold text-slate-700">(48) 99198-4678</p>
-            </div>
-
-            <Link
-              to="/orcamento"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-orange-100 transition-all hover:-translate-y-0.5 inline-flex items-center gap-2"
-              id="header-cta-whatsapp"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Orçamento
-            </Link>
-          </div>
 
           {/* Mobile Hamburguer Button */}
           <div className="flex md:hidden">
@@ -289,41 +338,69 @@ export default function Header() {
               </NavLink>
             </div>
             
-            {/* Services for Mobile (flat list to keep simple) */}
+            {/* Services for Mobile */}
             <div className="py-1 border-b border-slate-50 my-1">
               <span className="block px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-400">
-                Serviços
+                Serviços & Metodologia
               </span>
-              {services.map((service) => (
-                <NavLink
-                  key={service.path}
-                  to={service.path}
-                  end={service.path === '/servicos'}
-                  onClick={() => setIsOpen(false)}
-                  className={({ isActive }) =>
-                    `block px-6 py-2 rounded-lg text-sm font-medium ${
-                      isActive ? 'text-orange-600 font-bold bg-orange-50/70' : 'text-slate-600 hover:text-orange-600 hover:bg-slate-50'
-                    }`
-                  }
-                >
-                  {service.label}
-                </NavLink>
-              ))}
+              <NavLink
+                to="/servicos"
+                end
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `block px-6 py-2 rounded-lg text-sm font-semibold ${
+                    isActive ? 'text-blue-700 font-bold bg-blue-50/70' : 'text-slate-600 hover:text-blue-700 hover:bg-slate-50'
+                  }`
+                }
+              >
+                Visão Geral
+              </NavLink>
+              <NavLink
+                to="/servicos/projetos"
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `block px-6 py-2 rounded-lg text-sm font-semibold flex items-center justify-between ${
+                    isActive ? 'text-orange-600 font-bold bg-orange-50/70' : 'text-slate-600 hover:text-orange-600 hover:bg-slate-50'
+                  }`
+                }
+              >
+                <span>Vitrine de Projetos</span>
+                <span className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full uppercase">Cases</span>
+              </NavLink>
+              <NavLink
+                to="/servicos/processo"
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `block px-6 py-2 rounded-lg text-sm font-semibold flex items-center justify-between ${
+                    isActive ? 'text-emerald-700 font-bold bg-emerald-50/70' : 'text-slate-600 hover:text-emerald-700 hover:bg-slate-50'
+                  }`
+                }
+              >
+                <span>Nosso Processo</span>
+                <span className="text-[9px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">React/Express</span>
+              </NavLink>
+              <NavLink
+                to="/servicos/wordpress"
+                onClick={() => setIsOpen(false)}
+                className="block px-6 py-1.5 text-xs text-slate-500 hover:text-slate-800"
+              >
+                Sites WordPress sob Medida
+              </NavLink>
+              <NavLink
+                to="/servicos/hospedagem"
+                onClick={() => setIsOpen(false)}
+                className="block px-6 py-1.5 text-xs text-slate-500 hover:text-slate-800"
+              >
+                Hospedagem Cloud cPanel
+              </NavLink>
+              <NavLink
+                to="/360-graus"
+                onClick={() => setIsOpen(false)}
+                className="block px-6 py-1.5 text-xs text-slate-500 hover:text-slate-800"
+              >
+                Solução 360° (Auxílio Geral)
+              </NavLink>
             </div>
-            
-            {/* 360º Mobile Item */}
-            <NavLink
-              to="/360-graus"
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded-lg text-base font-semibold flex items-center justify-between ${
-                  isActive ? 'bg-orange-50 text-orange-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                }`
-              }
-            >
-              <span>360º Solução Completa</span>
-              <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full uppercase">All-in-One</span>
-            </NavLink>
 
             <NavLink
               to="/blog"
@@ -348,31 +425,15 @@ export default function Header() {
               Contato
             </NavLink>
 
-            <NavLink
-              to="/promocao"
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) =>
-                `w-full text-left block px-3 py-2.5 rounded-lg text-base font-bold text-orange-600 flex items-center gap-2 cursor-pointer ${
-                  isActive ? 'bg-orange-50 font-black' : 'hover:bg-orange-50'
-                }`
-              }
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-              </span>
-              Promoção Especial
-            </NavLink>
-
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-3 border-t border-slate-100">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white w-full py-3 rounded-xl font-bold text-base shadow-md"
+                className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white w-full py-2.5 rounded-xl font-bold text-xs shadow-sm"
               >
-                <MessageSquare className="h-5 w-5" />
-                Conversar no WhatsApp
+                <MessageSquare className="h-4 w-4" />
+                WhatsApp Direto: (48) 99198-4678
               </a>
             </div>
           </div>
