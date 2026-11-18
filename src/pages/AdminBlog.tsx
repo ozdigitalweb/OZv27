@@ -43,7 +43,8 @@ import {
   HelpCircle,
   Gift,
   Home,
-  DollarSign
+  DollarSign,
+  Workflow
 } from 'lucide-react';
 import { blogApi, StoredPost, PostPayload } from '../services/api';
 import BlogPostContent from '../components/BlogPostContent';
@@ -52,6 +53,7 @@ import OzzyKnowledgeManager from '../components/OzzyKnowledgeManager';
 import OzzyChatManager from '../components/OzzyChatManager';
 import PromoSettingsManager from '../components/PromoSettingsManager';
 import ProposalsManager from '../components/ProposalsManager';
+import N8nConsultantManager from '../components/N8nConsultantManager';
 
 const PRESET_IMAGES = [
   { label: 'Tecnologia / Código', url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?fm=webp&fit=crop&w=600&q=70' },
@@ -87,8 +89,8 @@ export default function AdminBlog() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Active view: 'list' | 'client-pages' | 'ozzy-chat' | 'ozzy-knowledge' | 'proposals' | 'editor' | 'promo-settings'
-  const [activeTab, setActiveTab] = useState<'list' | 'client-pages' | 'ozzy-chat' | 'ozzy-knowledge' | 'proposals' | 'editor' | 'promo-settings'>('ozzy-chat');
+  // Active view: 'list' | 'client-pages' | 'ozzy-chat' | 'n8n-consultor' | 'ozzy-knowledge' | 'proposals' | 'editor' | 'promo-settings'
+  const [activeTab, setActiveTab] = useState<'list' | 'client-pages' | 'ozzy-chat' | 'n8n-consultor' | 'ozzy-knowledge' | 'proposals' | 'editor' | 'promo-settings'>('ozzy-chat');
   const [editorMode, setEditorMode] = useState<'edit' | 'preview'>('edit');
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
@@ -514,7 +516,7 @@ export default function AdminBlog() {
                 setSidebarCollapsed(false);
               }}
               className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                activeTab === 'ozzy-chat' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals'
+                activeTab === 'ozzy-chat' || activeTab === 'n8n-consultor' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals'
                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/25 font-black'
                   : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
               }`}
@@ -522,7 +524,7 @@ export default function AdminBlog() {
               <MessageSquare className="w-3.5 h-3.5" />
               <span>Atendimento & CRM</span>
               <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${
-                activeTab === 'ozzy-chat' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals' ? 'bg-slate-950 text-orange-400' : 'bg-slate-800 text-slate-400'
+                activeTab === 'ozzy-chat' || activeTab === 'n8n-consultor' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals' ? 'bg-slate-950 text-orange-400' : 'bg-slate-800 text-slate-400'
               }`}>
                 CRM
               </span>
@@ -658,7 +660,7 @@ export default function AdminBlog() {
                     Submenu da Sessão
                   </span>
                   <h2 className="text-sm font-black text-white">
-                    {(activeTab === 'ozzy-chat' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals') && 'Atendimento & CRM'}
+                    {(activeTab === 'ozzy-chat' || activeTab === 'n8n-consultor' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals') && 'Atendimento & CRM'}
                     {(activeTab === 'list' || activeTab === 'editor') && 'Conteúdo & Blog'}
                     {activeTab === 'client-pages' && 'Páginas & Landing Pages'}
                     {activeTab === 'promo-settings' && 'Promoção & Pop-up'}
@@ -678,7 +680,7 @@ export default function AdminBlog() {
               </div>
 
               {/* Dynamic Submenu Items for: ATENDIMENTO & CRM */}
-              {(activeTab === 'ozzy-chat' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals') && (
+              {(activeTab === 'ozzy-chat' || activeTab === 'n8n-consultor' || activeTab === 'ozzy-knowledge' || activeTab === 'proposals') && (
                 <div className="space-y-4">
                   <div className="space-y-1.5">
                     <span className="block px-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -709,6 +711,28 @@ export default function AdminBlog() {
 
                     <button
                       onClick={() => {
+                        setActiveTab('n8n-consultor');
+                        setSidebarMobileOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        activeTab === 'n8n-consultor'
+                          ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-md shadow-orange-500/20'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Workflow className={`w-4 h-4 ${activeTab === 'n8n-consultor' ? 'text-slate-950' : 'text-emerald-400'}`} />
+                        <span>Consultor Virtual & n8n</span>
+                      </div>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        activeTab === 'n8n-consultor' ? 'bg-slate-950 text-emerald-400' : 'bg-emerald-500/20 text-emerald-400'
+                      }`}>
+                        VPS
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => {
                         setActiveTab('ozzy-knowledge');
                         setSidebarMobileOpen(false);
                       }}
@@ -720,7 +744,7 @@ export default function AdminBlog() {
                     >
                       <div className="flex items-center gap-2.5">
                         <Sparkles className={`w-4 h-4 ${activeTab === 'ozzy-knowledge' ? 'text-white' : 'text-amber-400'}`} />
-                        <span>Treinamento do OZZY</span>
+                        <span>Base de Conhecimento</span>
                       </div>
                       <span className="text-[10px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded font-bold">
                         RAG IA
@@ -754,10 +778,10 @@ export default function AdminBlog() {
                   <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-3.5 space-y-2 text-xs">
                     <div className="flex items-center gap-2 text-amber-400 font-bold text-[11px]">
                       <Zap className="w-3.5 h-3.5" />
-                      <span>Captura Ativa de Leads</span>
+                      <span>Captura Ativa via n8n</span>
                     </div>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
-                      O OZZY solicita Nome, WhatsApp, E-mail e Empresa no chat do site e atualiza automaticamente os leads no CRM.
+                      O Consultor Virtual coleta objetivo, escopo, nome, empresa e WhatsApp (via n8n local/VPS ou funil estruturado) e sincroniza os leads no CRM.
                     </p>
                     <a
                       href="https://wa.me/5548991984678"
@@ -994,7 +1018,8 @@ export default function AdminBlog() {
                   {activeTab === 'list' && 'Artigos do Blog'}
                   {activeTab === 'client-pages' && 'Páginas de Clientes'}
                   {activeTab === 'ozzy-chat' && 'Central de Conversas & CRM de Leads'}
-                  {activeTab === 'ozzy-knowledge' && 'Base de Conhecimento & Treinamento do Ozzy'}
+                  {activeTab === 'n8n-consultor' && 'Consultor Virtual & n8n Local (VPS)'}
+                  {activeTab === 'ozzy-knowledge' && 'Base de Conhecimento do Consultor Virtual'}
                   {activeTab === 'proposals' && 'Tabela de Preços & Propostas Comerciais'}
                   {activeTab === 'promo-settings' && 'Controle da Promoção & Pop-up'}
                   {activeTab === 'editor' && (editingPostId ? `Editar Artigo #${editingPostId}` : 'Criar Novo Artigo')}
@@ -1004,7 +1029,8 @@ export default function AdminBlog() {
                 {activeTab === 'list' && 'Gerenciador de Artigos do Blog'}
                 {activeTab === 'client-pages' && 'Gestão de Páginas de Clientes'}
                 {activeTab === 'ozzy-chat' && 'Central de Conversas & CRM de Leads'}
-                {activeTab === 'ozzy-knowledge' && 'Base de Conhecimento & Treinamento do OZZY'}
+                {activeTab === 'n8n-consultor' && 'Consultor Virtual Estruturado & n8n VPS'}
+                {activeTab === 'ozzy-knowledge' && 'Base de Conhecimento do Consultor Virtual'}
                 {activeTab === 'proposals' && 'Tabela de Preços & Propostas Comerciais'}
                 {activeTab === 'promo-settings' && 'Controle e Liga/Desliga da Promoção'}
                 {activeTab === 'editor' && (editingPostId ? 'Edição de Artigo' : 'Novo Artigo do Blog')}
@@ -1259,10 +1285,17 @@ export default function AdminBlog() {
         </div>
       )}
 
-      {/* TAB CONTENT 3: OZZY CHAT & LEADS CRM */}
+      {/* TAB CONTENT 3: CONSULTOR CHAT & LEADS CRM */}
       {activeTab === 'ozzy-chat' && (
         <div className="w-full">
           <OzzyChatManager />
+        </div>
+      )}
+
+      {/* TAB CONTENT 3.5: CONSULTOR VIRTUAL & N8N VPS */}
+      {activeTab === 'n8n-consultor' && (
+        <div className="w-full">
+          <N8nConsultantManager onShowToast={showToast} />
         </div>
       )}
 

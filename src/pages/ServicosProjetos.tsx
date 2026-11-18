@@ -134,12 +134,13 @@ export default function ServicosProjetos() {
     ? projects
     : projects.filter(p => p.category === selectedCategory);
 
-  const handleOpenOzzy = (projectName: string) => {
-    if (typeof (window as any).openOzzyChat === 'function') {
-      (window as any).openOzzyChat(`Olá! Gostei do projeto "${projectName}" e gostaria de entender como desenvolver algo semelhante para a minha empresa.`);
+  const handleOpenConsultor = (projectName: string) => {
+    const prompt = `Gostei do projeto "${projectName}" e gostaria de desenvolver algo semelhante para a minha empresa.`;
+    if (typeof (window as any).openConsultorChat === 'function') {
+      (window as any).openConsultorChat(prompt);
     } else {
-      window.dispatchEvent(new CustomEvent('open-ozzy-chat', {
-        detail: { prompt: `Olá! Gostei do projeto "${projectName}" e gostaria de entender como desenvolver algo semelhante para a minha empresa.` }
+      window.dispatchEvent(new CustomEvent('open-consultor-chat', {
+        detail: { prompt }
       }));
     }
   };
@@ -283,7 +284,7 @@ export default function ServicosProjetos() {
 
                   <div className="flex items-center justify-between pt-1">
                     <button
-                      onClick={() => handleOpenOzzy(project.name)}
+                      onClick={() => handleOpenConsultor(project.name)}
                       className="text-xs font-bold text-blue-700 hover:text-orange-500 transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Quero um projeto semelhante</span>
@@ -327,7 +328,7 @@ export default function ServicosProjetos() {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-shrink-0">
             <button
-              onClick={() => handleOpenOzzy('Gostaria de solicitar uma consultoria para um novo projeto')}
+              onClick={() => handleOpenConsultor('Gostaria de solicitar uma consultoria para um novo projeto')}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5 cursor-pointer text-center"
             >
               Conte o que sua empresa precisa

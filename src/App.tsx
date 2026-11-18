@@ -10,7 +10,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PromoPopup from './components/PromoPopup';
-import OzzyChatWidget from './components/OzzyChatWidget';
+import ConsultorVirtualWidget from './components/ConsultorVirtualWidget';
 
 // Page Views
 import Home from './pages/Home';
@@ -231,8 +231,8 @@ function AppContent() {
       {/* Public Footer (only visible on non-admin routes) */}
       {!isAdminRoute && <Footer />}
 
-      {/* Agente Virtual OZZY Floating Assistant on public pages */}
-      {!isAdminRoute && <OzzyChatWidget />}
+      {/* Consultor Virtual Estruturado + n8n Floating Assistant on public pages */}
+      {!isAdminRoute && <ConsultorVirtualWidget />}
 
       {/* Exclusive Floating Promo Pop-up and Modal on public pages */}
       {!isAdminRoute && <PromoPopup />}

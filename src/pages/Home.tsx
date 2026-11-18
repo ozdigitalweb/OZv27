@@ -29,13 +29,13 @@ import { mockPosts } from '../data/mockPosts';
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'sistema' | 'sitewp' | 'ecommerce'>('sistema');
 
-  // Trigger global Ozzy chat assistant with contextual prompt
-  const handleOpenOzzy = (customPrompt?: string) => {
-    const promptToSend = customPrompt || 'Olá! Gostaria de contar o que a minha empresa precisa e receber um resumo estratégico.';
-    if (typeof (window as any).openOzzyChat === 'function') {
-      (window as any).openOzzyChat(promptToSend);
+  // Trigger global Consultor Virtual assistant with contextual prompt
+  const handleOpenConsultor = (customPrompt?: string) => {
+    const promptToSend = customPrompt || '';
+    if (typeof (window as any).openConsultorChat === 'function') {
+      (window as any).openConsultorChat(promptToSend);
     } else {
-      window.dispatchEvent(new CustomEvent('open-ozzy-chat', {
+      window.dispatchEvent(new CustomEvent('open-consultor-chat', {
         detail: { prompt: promptToSend }
       }));
     }
@@ -85,7 +85,7 @@ export default function Home() {
               {/* Primary Hero CTA */}
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <button
-                  onClick={() => handleOpenOzzy()}
+                  onClick={() => handleOpenConsultor()}
                   className="bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-sm sm:text-base px-8 py-4 rounded-xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2 border border-blue-600"
                   id="hero-cta-tell-needs"
                 >
@@ -252,28 +252,28 @@ export default function Home() {
 
               <div className="flex flex-wrap items-center justify-center gap-2.5">
                 <button
-                  onClick={() => handleOpenOzzy('Preciso de um site institucional profissional para a minha empresa.')}
+                  onClick={() => handleOpenConsultor('Preciso de um site institucional profissional para a minha empresa.')}
                   className="bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-300 hover:border-blue-400 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 >
                   Preciso de um site
                 </button>
 
                 <button
-                  onClick={() => handleOpenOzzy('Quero um sistema web sob medida para automatizar os processos do meu negócio.')}
+                  onClick={() => handleOpenConsultor('Quero um sistema web sob medida para automatizar os processos do meu negócio.')}
                   className="bg-white hover:bg-orange-50 text-slate-700 hover:text-orange-600 border border-slate-300 hover:border-orange-400 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 >
                   Quero um sistema
                 </button>
 
                 <button
-                  onClick={() => handleOpenOzzy('Gostaria de melhorar um fluxo existente de vendas, atendimento ou sistema legado.')}
+                  onClick={() => handleOpenConsultor('Gostaria de melhorar um fluxo existente de vendas, atendimento ou sistema legado.')}
                   className="bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-300 hover:border-emerald-400 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 >
                   Melhorar fluxo existente
                 </button>
 
                 <button
-                  onClick={() => handleOpenOzzy('Gostaria de explorar possibilidades e entender o que a Oz Digital pode criar para meu negócio.')}
+                  onClick={() => handleOpenConsultor('Gostaria de explorar possibilidades e entender o que a Oz Digital pode criar para meu negócio.')}
                   className="bg-blue-700 hover:bg-blue-800 text-white border border-blue-600 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 >
                   Explorar possibilidades
@@ -678,7 +678,7 @@ export default function Home() {
 
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              onClick={() => handleOpenOzzy()}
+              onClick={() => handleOpenConsultor()}
               className="bg-white hover:bg-slate-100 text-blue-900 font-extrabold text-sm sm:text-base px-8 py-4 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer uppercase tracking-wider"
               id="cta-bottom-tell-needs"
             >
@@ -701,7 +701,7 @@ export default function Home() {
               {/* User interactive options / bubble */}
               <div className="flex justify-end">
                 <button
-                  onClick={() => handleOpenOzzy('Preciso de um sistema sob medida.')}
+                  onClick={() => handleOpenConsultor('Preciso de um sistema sob medida.')}
                   className="bg-orange-500 hover:bg-orange-600 text-white font-bold p-3 rounded-xl shadow-sm transition-all hover:scale-102 cursor-pointer text-right flex items-center gap-1.5"
                 >
                   <span>Preciso de um sistema sob medida.</span>
@@ -711,13 +711,13 @@ export default function Home() {
 
               <div className="flex flex-wrap justify-end gap-2 pt-1 text-[11px]">
                 <button
-                  onClick={() => handleOpenOzzy('Preciso criar ou modernizar o site da minha empresa.')}
+                  onClick={() => handleOpenConsultor('Preciso criar ou modernizar o site da minha empresa.')}
                   className="bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
                 >
                   Quero modernizar meu site
                 </button>
                 <button
-                  onClick={() => handleOpenOzzy('Gostaria de um orçamento para a Solução 360°')}
+                  onClick={() => handleOpenConsultor('Gostaria de um orçamento para a Solução 360°')}
                   className="bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
                 >
                   Orçamento Solução 360°

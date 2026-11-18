@@ -78,12 +78,13 @@ export default function ServicosProcesso() {
     }
   ];
 
-  const handleOpenOzzy = () => {
-    if (typeof (window as any).openOzzyChat === 'function') {
-      (window as any).openOzzyChat('Olá! Gostaria de conversar sobre como aplicar o processo de desenvolvimento da Oz Digital na minha empresa.');
+  const handleOpenConsultor = () => {
+    const prompt = 'Quero aplicar o processo de desenvolvimento da Oz Digital na minha empresa.';
+    if (typeof (window as any).openConsultorChat === 'function') {
+      (window as any).openConsultorChat(prompt);
     } else {
-      window.dispatchEvent(new CustomEvent('open-ozzy-chat', {
-        detail: { prompt: 'Olá! Gostaria de conversar sobre como aplicar o processo de desenvolvimento da Oz Digital na minha empresa.' }
+      window.dispatchEvent(new CustomEvent('open-consultor-chat', {
+        detail: { prompt }
       }));
     }
   };
@@ -260,7 +261,7 @@ export default function ServicosProcesso() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
-            onClick={handleOpenOzzy}
+            onClick={handleOpenConsultor}
             className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg shadow-blue-100 transition-all hover:-translate-y-0.5 cursor-pointer"
           >
             Conte o que sua empresa precisa

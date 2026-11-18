@@ -25,32 +25,16 @@ import {
   Award
 } from 'lucide-react';
 
-// Símbolo do Batman do Ozzy
-function BatmanIcon({ className = "w-6 h-6", ...props }: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M12 4.5c-.35 0-.7.42-.9 1.15-.85-.18-1.85-.12-2.85.45-1.95.95-3.65 2.65-5.25 4.8 1.45-.65 3.15-.8 4.65-.3-.85 1.3-.4 2.45.85 3.05 1.45-1.45 2.95-1.55 4.45-.6.25-.7.5-1.4.8-2.1.3.7.55 1.4.8 2.1 1.5-.95 3-.85 4.45.6 1.25-.6 1.7-1.75.85-3.05 1.5-.5 3.2-.35 4.65.3-1.6-2.15-3.3-3.85-5.25-4.8-1-.57-2-.63-2.85-.45-.2-.73-.55-1.15-.9-1.15h-.6z" />
-    </svg>
-  );
-}
-
 export default function ServicosMidia() {
-  const whatsappUrl = "https://wa.me/5548991984678?text=Ol%C3%A1%21+Gostaria+de+saber+mais+sobre+os+servi%C3%A7os+de+M%C3%ADdia%2C+Divulga%C3%A7%C3%A3o+e+Assistente+Virtual+OZZY.";
+  const whatsappUrl = "https://wa.me/5548991984678?text=Ol%C3%A1%21+Gostaria+de+saber+mais+sobre+os+servi%C3%A7os+de+M%C3%ADdia%2C+Divulga%C3%A7%C3%A3o+e+Consultor+Virtual+com+n8n.";
 
   const mediaPillars = [
     {
       icon: Bot,
-      badge: "Inteligência Artificial 24/7",
+      badge: "Automação n8n & Funil 24/7",
       badgeColor: "bg-orange-500/10 text-orange-600 border-orange-500/20",
-      title: "Assistente Virtual Inteligente (OZZY)",
-      description: "Implementamos um consultor de IA personalizado no seu site, treinado com todas as informações, produtos, dúvidas e diferenciais do seu negócio. Ele atende 24 horas por dia, qualifica clientes e transborda para o WhatsApp.",
+      title: "Consultor Virtual Estruturado + n8n",
+      description: "Implementamos um consultor virtual estruturado no seu site integrado ao n8n rodando em VPS própria. Ele qualifica o objetivo do visitante em 4 passos, gera um Resumo Estratégico e transborda para o WhatsApp.",
       features: [
         "Atendimento imediato sem filas (tempo de resposta 0s)",
         "Treinamento sob medida na base de dados da sua empresa",
@@ -163,7 +147,7 @@ export default function ServicosMidia() {
               </h1>
 
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-                Conectamos seu negócio ao público certo através de **artes profissionais para Instagram e Facebook**, **copywriting magnético**, estratégias de **lançamento de produtos** e o **OZZY**, o assistente virtual inteligente com atendimento 24/7.
+                Conectamos seu negócio ao público certo através de <strong>artes profissionais para Instagram e Facebook</strong>, <strong>copywriting magnético</strong>, estratégias de <strong>lançamento de produtos</strong> e nosso <strong>Consultor Virtual estruturado integrado ao n8n</strong>.
               </p>
 
               <div className="pt-2 flex flex-wrap gap-4">
@@ -198,50 +182,50 @@ export default function ServicosMidia() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                  OZZY IA Integrado
+                  Consultor Virtual + n8n
                 </span>
               </div>
             </div>
 
-            {/* Right Card Mockup - Interactive OZZY & Media Showcase */}
+            {/* Right Card Mockup - Interactive Consultor Virtual & n8n Showcase */}
             <div className="lg:col-span-5 relative">
               <div className="relative rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 p-6 border border-slate-800 shadow-2xl space-y-6">
                 
                 {/* Header Preview */}
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-orange-600 via-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 font-black shadow-md shadow-orange-500/30">
-                      <BatmanIcon className="w-6 h-6" />
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-orange-500 flex items-center justify-center text-white font-black shadow-md shadow-blue-500/30">
+                      <Bot className="w-6 h-6" />
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-sm text-white">OZZY Agent</span>
+                        <span className="font-extrabold text-sm text-white">Consultor Virtual OZ</span>
                         <span className="text-[9px] font-black uppercase bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">Online 24/7</span>
                       </div>
-                      <p className="text-[11px] text-slate-400">Consultor Inteligente OZ</p>
+                      <p className="text-[11px] text-slate-400">Funil Estruturado • n8n VPS</p>
                     </div>
                   </div>
                   <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20">
-                    IA Generativa
+                    Webhook n8n
                   </span>
                 </div>
 
                 {/* Interactive Speech Bubbles Showcase */}
                 <div className="space-y-3 text-xs">
                   <div className="bg-slate-800/90 text-slate-300 p-3 rounded-2xl rounded-tl-none border border-slate-700/80 leading-relaxed">
-                    <p className="font-semibold text-amber-400 mb-1">💬 Atendimento & Conversão:</p>
+                    <p className="font-semibold text-amber-400 mb-1">Diagnóstico Estruturado:</p>
                     <p>
-                      &quot;Olá! Sou o OZZY. O que você gostaria de divulgar hoje? Criamos suas artes para Instagram/Facebook, estruturamos sua Landing Page e atendemos seus clientes em tempo real!&quot;
+                      &quot;Olá! Sou o Consultor Virtual da Oz Digital. O que você gostaria de resolver hoje? Estruturamos seu escopo em 4 passos e geramos um Resumo Estratégico na hora.&quot;
                     </p>
                   </div>
 
                   <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold p-3 rounded-2xl rounded-tr-none shadow-md ml-auto max-w-[85%] text-right">
-                    &quot;Quero atrair mais clientes para minha clínica através de anúncios no Instagram!&quot;
+                    &quot;Quero atrair mais clientes para minha clínica através de anúncios e uma Landing Page!&quot;
                   </div>
 
                   <div className="bg-slate-800/90 text-slate-300 p-3 rounded-2xl rounded-tl-none border border-slate-700/80 leading-relaxed">
                     <p className="text-[11px] text-slate-300">
-                      ⚡ <strong>Excelente!</strong> Criamos o pacote de artes + copy de alta conversão para os anúncios e direcionamos o público para sua Landing Page com agendamento direto pelo WhatsApp!
+                      <strong>Excelente!</strong> Estruturamos suas artes + copy, criamos a Landing Page otimizada e integramos os leads via n8n direto para o seu WhatsApp e CRM!
                     </p>
                   </div>
                 </div>
@@ -250,13 +234,17 @@ export default function ServicosMidia() {
                 <div className="pt-2">
                   <button
                     onClick={() => {
-                      const btn = document.getElementById('ozzy-floating-btn');
-                      if (btn) btn.click();
+                      if (typeof (window as any).openConsultorChat === 'function') {
+                        (window as any).openConsultorChat();
+                      } else {
+                        const btn = document.getElementById('consultor-floating-btn');
+                        if (btn) btn.click();
+                      }
                     }}
-                    className="w-full bg-slate-800 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 border border-orange-500/40 font-extrabold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                    className="w-full bg-slate-800 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 border border-orange-500/40 font-extrabold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer"
                   >
-                    <BatmanIcon className="w-4 h-4" />
-                    <span>Clique para Testar o OZZY Agora</span>
+                    <Bot className="w-4 h-4" />
+                    <span>Clique para Testar o Consultor Virtual</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -422,8 +410,8 @@ export default function ServicosMidia() {
                   <div className="flex items-center gap-3 p-2.5 bg-slate-900 rounded-xl border border-emerald-500/40 bg-emerald-950/20">
                     <span className="w-7 h-7 rounded-lg bg-emerald-600 text-slate-950 flex items-center justify-center font-black">3</span>
                     <div>
-                      <p className="font-bold text-emerald-400">OZZY ou WhatsApp Direto</p>
-                      <p className="text-[11px] text-slate-400">Conversão do lead em proposta e venda</p>
+                      <p className="font-bold text-emerald-400">Consultor Virtual + WhatsApp</p>
+                      <p className="text-[11px] text-slate-400">Conversão do lead via n8n e CRM</p>
                     </div>
                   </div>
                 </div>
@@ -435,20 +423,20 @@ export default function ServicosMidia() {
         </div>
       </section>
 
-      {/* 4. OZZY Special Feature Section */}
+      {/* 4. Consultor Virtual + n8n Special Feature Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 sm:p-12 space-y-10">
           
           <div className="max-w-3xl space-y-3">
             <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 border border-orange-200 px-3 py-1 rounded-full text-xs font-bold">
               <Bot className="w-3.5 h-3.5 text-orange-600" />
-              Tecnologia Exclusiva AGÊNCIA OZ
+              Arquitetura Exclusiva AGÊNCIA OZ + n8n
             </div>
             <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              OZZY: Seu Vendedor e Consultor Digital Sempre Ativo
+              Consultor Virtual Estruturado com Orquestração n8n na sua VPS
             </h2>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              O OZZY pode ser implementado no site oficial da sua empresa, integrando o seu banco de conhecimento com respostas ultra-rápidas, síntese de voz e coleta de contatos qualificados.
+              Implementamos o Consultor Virtual no site oficial da sua empresa conectado ao seu próprio servidor n8n em Docker, automatizando qualificação em 4 etapas, resumo estratégico e envio para o WhatsApp e CRM.
             </p>
           </div>
 

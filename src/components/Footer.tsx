@@ -135,17 +135,15 @@ export default function Footer() {
               <div className="pt-2">
                 <button
                   onClick={() => {
-                    if (typeof (window as any).openOzzyChat === 'function') {
-                      (window as any).openOzzyChat('Olá Ozzy! Gostaria de contar o que minha empresa precisa.');
+                    if (typeof (window as any).openConsultorChat === 'function') {
+                      (window as any).openConsultorChat();
                     } else {
-                      window.dispatchEvent(new CustomEvent('open-ozzy-chat', {
-                        detail: { prompt: 'Olá Ozzy! Gostaria de contar o que minha empresa precisa.' }
-                      }));
+                      window.dispatchEvent(new CustomEvent('open-consultor-chat'));
                     }
                   }}
                   className="bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700/60 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>Falar com Assistente Ozzy</span>
+                  <span>Falar com Consultor Virtual</span>
                   <span>&rarr;</span>
                 </button>
               </div>

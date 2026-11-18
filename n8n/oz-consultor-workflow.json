@@ -1,0 +1,76 @@
+{
+  "name": "Oz Digital — Consultor Virtual Funil (MVP2)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "oz-consultor",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook Consultor Site",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "oz-consultor-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Processamento estruturado do Funil do Consultor Virtual — Oz Digital\nconst body = $input.first().json.body || $input.first().json;\n\nconst event = body.event || 'consultor_message';\nif (event === 'ping_test') {\n  return [{\n    json: {\n      ok: true,\n      engine: 'n8n-vps-local',\n      message: 'Webhook n8n Oz Digital ativo e respondendo corretamente!',\n      receivedAt: new Date().toISOString()\n    }\n  }];\n}\n\nconst message = (body.message || '').trim();\nconst lower = message.toLowerCase();\nconst step = body.step || 'objetivo';\nconst funnel = body.funnelData || {};\n\n// Atualiza estado do funil a partir da mensagem recebida\nconst nextFunnel = {\n  objetivo: funnel.objetivo || '',\n  escopo: funnel.escopo || '',\n  prazo: funnel.prazo || '',\n  nome: funnel.nome || '',\n  empresa: funnel.empresa || '',\n  whatsapp: funnel.whatsapp || '',\n  cidade: funnel.cidade || ''\n};\n\n// Detecta objetivo inicial\nif (!nextFunnel.objetivo) {\n  if (lower.includes('site') || lower.includes('wordpress') || lower.includes('landing')) {\n    nextFunnel.objetivo = 'Site / Landing Page Profissional';\n  } else if (lower.includes('sistema') || lower.includes('software') || lower.includes('gestor') || lower.includes('painel')) {\n    nextFunnel.objetivo = 'Sistema Web Sob Medida';\n  } else if (lower.includes('fluxo') || lower.includes('melhorar') || lower.includes('integr') || lower.includes('api') || lower.includes('automa')) {\n    nextFunnel.objetivo = 'Melhorar Fluxo Existente & Integrações';\n  } else if (lower.includes('explor') || lower.includes('360') || lower.includes('ecommerce') || lower.includes('loja') || lower.includes('hospedagem')) {\n    nextFunnel.objetivo = 'Explorar Possibilidades / Solução 360°';\n  } else if (step === 'objetivo' && message.length > 2) {\n    nextFunnel.objetivo = message;\n  }\n}\n\n// Se ja tem objetivo mas nao tem escopo, captura escopo\nif (nextFunnel.objetivo && !nextFunnel.escopo && step === 'escopo' && message.length > 2) {\n  nextFunnel.escopo = message;\n}\n\n// Extrai dados de contato se enviados por texto livre\nconst phoneMatch = message.match(/(?:\\+?55\\s?)?(?:\\(?\\s?[1-9]{2}\\s?\\)?\\s?)?(?:9\\s?\\d{4}[-\\s]?\\d{4}|\\d{4}[-\\s]?\\d{4})/);\nif (phoneMatch && !nextFunnel.whatsapp) {\n  nextFunnel.whatsapp = phoneMatch[0].trim();\n}\n\n// Define proxima etapa e resposta estruturada\nlet nextStep = step;\nlet reply = '';\nlet quickOptions = [];\nlet strategicSummary = null;\n\nif (!nextFunnel.objetivo) {\n  nextStep = 'objetivo';\n  reply = 'Olá! Sou o **Consultor Virtual da Oz Digital** (rodando via n8n).\\n\\nPara montar um resumo estratégico para o seu negócio, **o que você precisa resolver hoje?**';\n  quickOptions = [\n    { label: 'Preciso de um site', value: 'Preciso de um site institucional profissional' },\n    { label: 'Quero um sistema', value: 'Quero um sistema web sob medida' },\n    { label: 'Melhorar fluxo existente', value: 'Quero melhorar um fluxo existente' },\n    { label: 'Explorar possibilidades', value: 'Quero explorar possibilidades' }\n  ];\n} else if (!nextFunnel.escopo) {\n  nextStep = 'escopo';\n  reply = `Entendido: foco em **${nextFunnel.objetivo}**.\\n\\nQual é o **principal desafio atual** ou em quanto tempo você gostaria de colocar esse projeto no ar?`;\n  quickOptions = [\n    { label: 'Urgente (próximos 15 dias)', value: 'Preciso resolver com urgência nos próximos 15 dias' },\n    { label: 'Planejamento (30 a 60 dias)', value: 'Estou planejando para os próximos 30 a 60 dias' },\n    { label: 'Substituir planilhas / site lento', value: 'Quero substituir planilhas manuais ou um site lento' }\n  ];\n} else if (!nextFunnel.nome || !nextFunnel.whatsapp) {\n  nextStep = 'contato';\n  reply = 'Perfeito! Já estruturei o escopo técnico inicial.\\n\\nInforme seu **Nome**, **Empresa** e **WhatsApp com DDD** abaixo para gerar o **Resumo Estratégico do Projeto** e enviar para nossa equipe.';\n} else {\n  nextStep = 'resumo';\n  const stackSugerida = nextFunnel.objetivo.toLowerCase().includes('sistema') || nextFunnel.objetivo.toLowerCase().includes('fluxo')\n    ? 'React + Express + PostgreSQL + Docker (n8n)'\n    : 'WordPress Otimizado + Cloud cPanel NVMe + SEO/GEO';\n\n  const prazoEstimado = nextFunnel.objetivo.toLowerCase().includes('sistema')\n    ? '15 a 30 dias úteis (entrega em sprints)'\n    : '7 a 15 dias úteis';\n\n  strategicSummary = {\n    objetivo: nextFunnel.objetivo,\n    escopo: nextFunnel.escopo,\n    contato: `${nextFunnel.nome}${nextFunnel.empresa ? ` (${nextFunnel.empresa})` : ''}`,\n    whatsapp: nextFunnel.whatsapp,\n    arquiteturaSugerida: stackSugerida,\n    prazoEstimado,\n    proximosPassos: [\n      '1. Entendimento detalhado das regras de negócio (Reunião de 20 min)',\n      '2. Organização de fluxos e protótipo UX antes do código',\n      '3. Desenvolvimento modular e homologação assistida'\n    ]\n  };\n\n  reply = `Pronto, **${nextFunnel.nome}**! Seu **Resumo Estratégico** foi gerado pelo fluxo n8n.\\n\\nVocê pode enviar este diagnóstico diretamente para o WhatsApp da **Oz Digital** clicando no botão abaixo.`;\n}\n\nreturn [{\n  json: {\n    reply,\n    nextStep,\n    funnelData: nextFunnel,\n    quickOptions,\n    strategicSummary,\n    engine: 'n8n-vps-local',\n    processedAt: new Date().toISOString()\n  }\n}];\n"
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Processar Funil Consultor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Responder ao Site (Webhook)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [760, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Consultor Site": {
+      "main": [
+        [
+          {
+            "node": "Processar Funil Consultor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processar Funil Consultor": {
+      "main": [
+        [
+          {
+            "node": "Responder ao Site (Webhook)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "oz-digital-consultor-funil-v1",
+  "tags": ["oz-digital", "consultor", "funil"]
+}

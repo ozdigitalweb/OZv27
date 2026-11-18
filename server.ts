@@ -38,6 +38,8 @@ const CONVERSATIONS_FILE = path.join(DATA_DIR, 'conversations.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 const AGENT_LOGS_FILE = path.join(DATA_DIR, 'agent_logs.json');
 const AGENT_SETTINGS_FILE = path.join(DATA_DIR, 'agent_settings.json');
+const N8N_CONFIG_FILE = path.join(DATA_DIR, 'n8n_config.json');
+const N8N_LOGS_FILE = path.join(DATA_DIR, 'n8n_logs.json');
 
 // Default site promo settings
 const DEFAULT_SITE_SETTINGS = {
@@ -2524,6 +2526,653 @@ app.post('/api/ozzy/chat', async (req, res) => {
       source: 'knowledge-base-fallback',
       suggestedActions: fallback.suggestedActions,
       postActionText: fallback.postActionText
+    });
+  }
+});
+
+// --- CONSULTOR VIRTUAL ESTRUTURADO + INTEGRAÇÃO N8N LOCAL (VPS) ---
+
+interface N8nConfig {
+  enabled: boolean;
+  webhookUrl: string;
+  authHeaderName: string;
+  authHeaderValue: string;
+  timeoutMs: number;
+  fallbackToLocalFunnel: boolean;
+  updatedAt: string;
+}
+
+const DEFAULT_N8N_CONFIG: N8nConfig = {
+  enabled: true,
+  webhookUrl: process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/oz-consultor',
+  authHeaderName: 'X-OZ-Webhook-Secret',
+  authHeaderValue: process.env.N8N_WEBHOOK_SECRET || '',
+  timeoutMs: 8000,
+  fallbackToLocalFunnel: true,
+  updatedAt: new Date().toISOString()
+};
+
+interface N8nDispatchLog {
+  id: string;
+  event: string;
+  webhookUrl: string;
+  sessionId: string;
+  step: string;
+  engine: 'n8n-vps' | 'local-funnel-fallback' | 'test-ping';
+  status: 'success' | 'error';
+  httpStatus?: number;
+  latencyMs: number;
+  errorMessage?: string;
+  payloadPreview: string;
+  executedAt: string;
+}
+
+if (!fs.existsSync(N8N_CONFIG_FILE)) {
+  fs.writeFileSync(N8N_CONFIG_FILE, JSON.stringify(DEFAULT_N8N_CONFIG, null, 2), 'utf-8');
+}
+if (!fs.existsSync(N8N_LOGS_FILE)) {
+  fs.writeFileSync(N8N_LOGS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+
+function getStoredN8nConfig(): N8nConfig {
+  try {
+    const raw = fs.readFileSync(N8N_CONFIG_FILE, 'utf-8');
+    const parsed = JSON.parse(raw);
+    return {
+      ...DEFAULT_N8N_CONFIG,
+      ...parsed,
+      webhookUrl: parsed.webhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_CONFIG.webhookUrl
+    };
+  } catch {
+    return DEFAULT_N8N_CONFIG;
+  }
+}
+
+function saveN8nConfig(cfg: N8nConfig) {
+  fs.writeFileSync(N8N_CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf-8');
+}
+
+function getStoredN8nLogs(): N8nDispatchLog[] {
+  try {
+    const raw = fs.readFileSync(N8N_LOGS_FILE, 'utf-8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function recordN8nLog(entry: Omit<N8nDispatchLog, 'id' | 'executedAt'>) {
+  try {
+    const logs = getStoredN8nLogs();
+    const newEntry: N8nDispatchLog = {
+      ...entry,
+      id: `n8n-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      executedAt: new Date().toISOString()
+    };
+    logs.unshift(newEntry);
+    if (logs.length > 50) logs.length = 50;
+    fs.writeFileSync(N8N_LOGS_FILE, JSON.stringify(logs, null, 2), 'utf-8');
+    return newEntry;
+  } catch (err) {
+    console.error('Error saving n8n log:', err);
+  }
+}
+
+interface ConsultorFunnelData {
+  objetivo?: string;
+  escopo?: string;
+  prazo?: string;
+  nome?: string;
+  empresa?: string;
+  whatsapp?: string;
+  cidade?: string;
+}
+
+type ConsultorStep = 'objetivo' | 'escopo' | 'contato' | 'resumo';
+
+function buildLocalConsultorResponse(
+  message: string,
+  step: ConsultorStep,
+  incomingFunnel: ConsultorFunnelData = {}
+) {
+  const clean = (message || '').trim();
+  const lower = clean.toLowerCase();
+
+  // Merge extracted contact info if present
+  const extracted = extractLeadInfo(clean, {
+    name: incomingFunnel.nome,
+    company: incomingFunnel.empresa,
+    phone: incomingFunnel.whatsapp,
+    city: incomingFunnel.cidade
+  });
+
+  const funnel: ConsultorFunnelData = {
+    objetivo: incomingFunnel.objetivo || '',
+    escopo: incomingFunnel.escopo || '',
+    prazo: incomingFunnel.prazo || '',
+    nome: incomingFunnel.nome || extracted.contact.name || '',
+    empresa: incomingFunnel.empresa || extracted.contact.company || '',
+    whatsapp: incomingFunnel.whatsapp || extracted.contact.phone || '',
+    cidade: incomingFunnel.cidade || extracted.contact.city || ''
+  };
+
+  // Detect objective from user input if not yet selected
+  if (!funnel.objetivo) {
+    if (lower.includes('site') || lower.includes('wordpress') || lower.includes('landing') || lower.includes('página') || lower.includes('pagina')) {
+      funnel.objetivo = 'Site / Landing Page Profissional';
+    } else if (lower.includes('sistema') || lower.includes('software') || lower.includes('gestor') || lower.includes('painel') || lower.includes('sob medida')) {
+      funnel.objetivo = 'Sistema Web Sob Medida';
+    } else if (lower.includes('fluxo') || lower.includes('melhorar') || lower.includes('integr') || lower.includes('api') || lower.includes('automa') || lower.includes('n8n')) {
+      funnel.objetivo = 'Melhorar Fluxo Existente & Integrações';
+    } else if (lower.includes('explor') || lower.includes('360') || lower.includes('ecommerce') || lower.includes('e-commerce') || lower.includes('loja') || lower.includes('hospedagem')) {
+      funnel.objetivo = 'Explorar Possibilidades / Solução 360°';
+    } else if (step === 'objetivo' && clean.length >= 4 && !lower.startsWith('olá') && !lower.startsWith('ola') && lower !== 'oi') {
+      funnel.objetivo = clean;
+    }
+  } else if (!funnel.escopo && step === 'escopo' && clean.length >= 3) {
+    funnel.escopo = clean;
+  }
+
+  // Answer direct questions about services/prices/process without losing funnel state
+  const isDirectQuestion = clean.includes('?') || lower.includes('quanto custa') || lower.includes('preço') || lower.includes('preco') || lower.includes('prazo') || lower.includes('processo') || lower.includes('seo') || lower.includes('geo') || lower.includes('hospedagem');
+  if (isDirectQuestion && step !== 'contato') {
+    const kbFallback = generateOzzyFallback(clean, {
+      name: funnel.nome,
+      company: funnel.empresa,
+      phone: funnel.whatsapp,
+      city: funnel.cidade
+    });
+    const cleanKbReply = kbFallback.reply
+      .replace(/OZZY/gi, 'Consultor Virtual Oz Digital')
+      .replace(/👉 \*Qual é o seu nome\?\*/g, '')
+      .trim();
+    return {
+      reply: cleanKbReply,
+      nextStep: !funnel.objetivo ? 'objetivo' : !funnel.escopo ? 'escopo' : (!funnel.nome || !funnel.whatsapp) ? 'contato' : 'resumo',
+      funnelData: funnel,
+      quickOptions: !funnel.objetivo
+        ? [
+            { label: 'Preciso de um site', value: 'Preciso de um site institucional profissional' },
+            { label: 'Quero um sistema', value: 'Quero um sistema web sob medida' },
+            { label: 'Melhorar fluxo existente', value: 'Quero melhorar um fluxo existente' },
+            { label: 'Explorar possibilidades', value: 'Quero explorar possibilidades' }
+          ]
+        : [],
+      strategicSummary: null,
+      suggestedActions: [
+        { label: 'Ver Projetos', path: '/servicos/projetos' },
+        { label: 'Nosso Processo', path: '/servicos/processo' },
+        { label: 'Falar no WhatsApp', url: 'https://wa.me/5548991984678?text=Ol%C3%A1%21+Vim+pelo+Consultor+Virtual+da+Oz+Digital.' }
+      ],
+      engine: 'local-funnel-fallback' as const
+    };
+  }
+
+  // Funnel state progression
+  if (!funnel.objetivo) {
+    return {
+      reply: 'Olá! Sou o **Consultor Virtual da Oz Digital**.\n\nVamos estruturar o escopo do seu projeto em menos de 1 minuto para gerar um **Resumo Estratégico** personalizado.\n\n**O que você precisa resolver hoje?**',
+      nextStep: 'objetivo' as ConsultorStep,
+      funnelData: funnel,
+      quickOptions: [
+        { label: 'Preciso de um site', value: 'Preciso de um site institucional profissional' },
+        { label: 'Quero um sistema', value: 'Quero um sistema web sob medida' },
+        { label: 'Melhorar fluxo existente', value: 'Quero melhorar um fluxo existente' },
+        { label: 'Explorar possibilidades', value: 'Quero explorar possibilidades' }
+      ],
+      strategicSummary: null,
+      suggestedActions: [],
+      engine: 'local-funnel-fallback' as const
+    };
+  }
+
+  if (!funnel.escopo) {
+    return {
+      reply: `Perfeito, foco em **${funnel.objetivo}**.\n\nQual é o **principal desafio atual** da empresa ou o prazo ideal para colocar isso no ar?`,
+      nextStep: 'escopo' as ConsultorStep,
+      funnelData: funnel,
+      quickOptions: [
+        { label: 'Urgente (15 a 30 dias)', value: 'Preciso iniciar com urgência para os próximos 15 a 30 dias' },
+        { label: 'Substituir planilhas / site lento', value: 'Hoje dependemos de planilhas manuais ou temos um site lento que não converte' },
+        { label: 'Automatizar atendimento & vendas', value: 'Quero integrar formulários, WhatsApp e automações no n8n' }
+      ],
+      strategicSummary: null,
+      suggestedActions: [],
+      engine: 'local-funnel-fallback' as const
+    };
+  }
+
+  if (!funnel.nome || !funnel.whatsapp) {
+    return {
+      reply: `Escopo registrado! Agora preencha seus dados abaixo (ou envie por mensagem) para gerar o **Resumo Estratégico do Projeto** e liberar o encaminhamento direto para a nossa equipe técnica:`,
+      nextStep: 'contato' as ConsultorStep,
+      funnelData: funnel,
+      quickOptions: [],
+      strategicSummary: null,
+      suggestedActions: [],
+      engine: 'local-funnel-fallback' as const
+    };
+  }
+
+  // Step 4: Strategic Summary generated
+  const isSystem = funnel.objetivo.toLowerCase().includes('sistema') || funnel.objetivo.toLowerCase().includes('fluxo');
+  const arquiteturaSugerida = isSystem
+    ? 'React + Express + PostgreSQL + Docker / n8n'
+    : 'WordPress Otimizado (PageSpeed 90+) + Cloud cPanel NVMe + SEO/GEO';
+  const prazoEstimado = isSystem ? '15 a 30 dias úteis (entregas semanais)' : '7 a 15 dias úteis';
+
+  const strategicSummary = {
+    objetivo: funnel.objetivo,
+    escopo: funnel.escopo,
+    contato: `${funnel.nome}${funnel.empresa ? ` — ${funnel.empresa}` : ''}`,
+    whatsapp: funnel.whatsapp,
+    cidade: funnel.cidade || 'Atendimento Nacional',
+    arquiteturaSugerida,
+    prazoEstimado,
+    proximosPassos: [
+      '1. Entender o negócio: Reunião de 20 min com Marcelo Krauthein para validar fluxos',
+      '2. Organizar fluxos e UX: Protótipo navegável antes de escrever o código final',
+      '3. Desenvolver & Publicar: Entrega em ambiente Docker / Cloud com suporte direto'
+    ]
+  };
+
+  const waText = encodeURIComponent(
+    `Olá equipe Oz Digital! Concluí o funil do Consultor Virtual:\n` +
+    `• Nome: ${funnel.nome}\n` +
+    (funnel.empresa ? `• Empresa: ${funnel.empresa}\n` : '') +
+    `• WhatsApp: ${funnel.whatsapp}\n` +
+    `• Objetivo: ${funnel.objetivo}\n` +
+    `• Escopo/Desafio: ${funnel.escopo}\n` +
+    `• Stack sugerida: ${arquiteturaSugerida}`
+  );
+
+  return {
+    reply: `Excelente, **${funnel.nome}**! Seu **Resumo Estratégico** está pronto abaixo.\n\nNossa equipe já recebeu os parâmetros e você pode encaminhar este diagnóstico diretamente para o nosso WhatsApp com 1 clique.`,
+    nextStep: 'resumo' as ConsultorStep,
+    funnelData: funnel,
+    quickOptions: [],
+    strategicSummary,
+    suggestedActions: [
+      { label: 'Enviar Resumo no WhatsApp', url: `https://wa.me/5548991984678?text=${waText}` },
+      { label: 'Ver Nosso Processo', path: '/servicos/processo' },
+      { label: 'Vitrine de Projetos', path: '/servicos/projetos' }
+    ],
+    engine: 'local-funnel-fallback' as const
+  };
+}
+
+// GET /api/n8n/config (Protected)
+app.get('/api/n8n/config', authMiddleware, (req, res) => {
+  res.json({ config: getStoredN8nConfig() });
+});
+
+// PUT /api/n8n/config (Protected)
+app.put('/api/n8n/config', authMiddleware, (req, res) => {
+  const current = getStoredN8nConfig();
+  const updated: N8nConfig = {
+    ...current,
+    ...(typeof req.body.enabled === 'boolean' ? { enabled: req.body.enabled } : {}),
+    ...(typeof req.body.webhookUrl === 'string' ? { webhookUrl: req.body.webhookUrl.trim() } : {}),
+    ...(typeof req.body.authHeaderName === 'string' ? { authHeaderName: req.body.authHeaderName.trim() } : {}),
+    ...(typeof req.body.authHeaderValue === 'string' ? { authHeaderValue: req.body.authHeaderValue.trim() } : {}),
+    ...(typeof req.body.timeoutMs === 'number' ? { timeoutMs: Math.max(1000, Math.min(30000, req.body.timeoutMs)) } : {}),
+    ...(typeof req.body.fallbackToLocalFunnel === 'boolean' ? { fallbackToLocalFunnel: req.body.fallbackToLocalFunnel } : {}),
+    updatedAt: new Date().toISOString()
+  };
+  saveN8nConfig(updated);
+  res.json({ success: true, config: updated });
+});
+
+// GET /api/n8n/logs (Protected)
+app.get('/api/n8n/logs', authMiddleware, (req, res) => {
+  res.json({ logs: getStoredN8nLogs() });
+});
+
+// DELETE /api/n8n/logs (Protected)
+app.delete('/api/n8n/logs', authMiddleware, (req, res) => {
+  fs.writeFileSync(N8N_LOGS_FILE, JSON.stringify([], null, 2), 'utf-8');
+  res.json({ success: true });
+});
+
+// GET /api/n8n/files/:filename (Protected) - Download/view VPS setup files
+app.get('/api/n8n/files/:filename', authMiddleware, (req, res) => {
+  const allowed = ['docker-compose.yml', 'oz-consultor-workflow.json', 'install-vps.sh', 'README.md'];
+  const { filename } = req.params;
+  if (!allowed.includes(filename)) {
+    return res.status(404).json({ error: 'Arquivo não encontrado.' });
+  }
+  const filePath = path.join(process.cwd(), 'n8n', filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Arquivo não disponível no servidor.' });
+  }
+  const content = fs.readFileSync(filePath, 'utf-8');
+  res.json({ filename, content });
+});
+
+// POST /api/n8n/test (Protected) - Live ping to local/VPS n8n webhook
+app.post('/api/n8n/test', authMiddleware, async (req, res) => {
+  const cfg = getStoredN8nConfig();
+  const targetUrl = (req.body?.webhookUrl || cfg.webhookUrl || '').trim();
+
+  if (!targetUrl) {
+    return res.status(400).json({ ok: false, error: 'URL do Webhook n8n não configurada.' });
+  }
+
+  const startedAt = Date.now();
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), cfg.timeoutMs || 8000);
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    if (cfg.authHeaderName && cfg.authHeaderValue) {
+      headers[cfg.authHeaderName] = cfg.authHeaderValue;
+    }
+
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers,
+      signal: controller.signal,
+      body: JSON.stringify({
+        event: 'ping_test',
+        source: 'oz-digital-admin',
+        timestamp: new Date().toISOString()
+      })
+    });
+    clearTimeout(timer);
+
+    const latencyMs = Date.now() - startedAt;
+    const rawText = await response.text();
+    let parsedBody: any = rawText;
+    try {
+      parsedBody = JSON.parse(rawText);
+    } catch {
+      // keep raw text
+    }
+
+    recordN8nLog({
+      event: 'ping_test',
+      webhookUrl: targetUrl,
+      sessionId: 'admin-test',
+      step: 'ping',
+      engine: 'test-ping',
+      status: response.ok ? 'success' : 'error',
+      httpStatus: response.status,
+      latencyMs,
+      errorMessage: response.ok ? undefined : `HTTP ${response.status}`,
+      payloadPreview: 'Teste de conexão Webhook n8n'
+    });
+
+    if (!response.ok) {
+      return res.json({
+        ok: false,
+        httpStatus: response.status,
+        latencyMs,
+        error: `O n8n respondeu com HTTP ${response.status}. Verifique se o workflow está ativo (Active = ON).`,
+        response: parsedBody
+      });
+    }
+
+    return res.json({
+      ok: true,
+      httpStatus: response.status,
+      latencyMs,
+      response: parsedBody
+    });
+  } catch (err: any) {
+    const latencyMs = Date.now() - startedAt;
+    const errMsg = err?.name === 'AbortError'
+      ? `Timeout após ${cfg.timeoutMs || 8000}ms`
+      : (err?.cause?.code || err?.message || 'Falha de conexão');
+
+    recordN8nLog({
+      event: 'ping_test',
+      webhookUrl: targetUrl,
+      sessionId: 'admin-test',
+      step: 'ping',
+      engine: 'test-ping',
+      status: 'error',
+      latencyMs,
+      errorMessage: errMsg,
+      payloadPreview: 'Teste de conexão Webhook n8n'
+    });
+
+    return res.json({
+      ok: false,
+      latencyMs,
+      error: `Não foi possível conectar em ${targetUrl} (${errMsg}). Certifique-se de que o container n8n está rodando localmente na VPS com o workflow ativo.`
+    });
+  }
+});
+
+// POST /api/consultor/chat - Consultor Virtual Estruturado com Dispatch para n8n
+app.post('/api/consultor/chat', async (req, res) => {
+  try {
+    const {
+      message = '',
+      sessionId,
+      step = 'objetivo',
+      funnelData = {},
+      history = [],
+      sourcePage = '/'
+    } = req.body || {};
+
+    const cfg = getStoredN8nConfig();
+    const cleanMessage = typeof message === 'string' ? message.trim() : '';
+
+    let finalPayload: any = null;
+    let engineUsed: 'n8n-vps' | 'local-funnel-fallback' = 'local-funnel-fallback';
+
+    // 1. Try local/VPS n8n webhook first when enabled
+    if (cfg.enabled && cfg.webhookUrl) {
+      const startedAt = Date.now();
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), cfg.timeoutMs || 8000);
+
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        };
+        if (cfg.authHeaderName && cfg.authHeaderValue) {
+          headers[cfg.authHeaderName] = cfg.authHeaderValue;
+        }
+
+        const n8nResponse = await fetch(cfg.webhookUrl, {
+          method: 'POST',
+          headers,
+          signal: controller.signal,
+          body: JSON.stringify({
+            event: 'consultor_message',
+            sessionId: sessionId || `visit-${Date.now()}`,
+            message: cleanMessage,
+            step,
+            funnelData,
+            history: Array.isArray(history) ? history.slice(-8) : [],
+            sourcePage,
+            timestamp: new Date().toISOString()
+          })
+        });
+        clearTimeout(timer);
+
+        const latencyMs = Date.now() - startedAt;
+        if (n8nResponse.ok) {
+          const data = await n8nResponse.json();
+          if (data && typeof data.reply === 'string') {
+            engineUsed = 'n8n-vps';
+            finalPayload = {
+              ...data,
+              engine: 'n8n-vps'
+            };
+            recordN8nLog({
+              event: 'consultor_message',
+              webhookUrl: cfg.webhookUrl,
+              sessionId: sessionId || 'unknown',
+              step: data.nextStep || step,
+              engine: 'n8n-vps',
+              status: 'success',
+              httpStatus: n8nResponse.status,
+              latencyMs,
+              payloadPreview: cleanMessage.slice(0, 100) || `Etapa: ${step}`
+            });
+          }
+        } else {
+          recordN8nLog({
+            event: 'consultor_message',
+            webhookUrl: cfg.webhookUrl,
+            sessionId: sessionId || 'unknown',
+            step,
+            engine: 'local-funnel-fallback',
+            status: 'error',
+            httpStatus: n8nResponse.status,
+            latencyMs,
+            errorMessage: `HTTP ${n8nResponse.status}`,
+            payloadPreview: cleanMessage.slice(0, 100) || `Etapa: ${step}`
+          });
+        }
+      } catch (n8nErr: any) {
+        const latencyMs = Date.now() - startedAt;
+        const errMsg = n8nErr?.name === 'AbortError'
+          ? 'Timeout n8n'
+          : (n8nErr?.cause?.code || n8nErr?.message || 'n8n offline');
+        recordN8nLog({
+          event: 'consultor_message',
+          webhookUrl: cfg.webhookUrl,
+          sessionId: sessionId || 'unknown',
+          step,
+          engine: 'local-funnel-fallback',
+          status: 'error',
+          latencyMs,
+          errorMessage: errMsg,
+          payloadPreview: cleanMessage.slice(0, 100) || `Etapa: ${step}`
+        });
+      }
+    }
+
+    // 2. Fallback to structured local funnel if n8n did not respond
+    if (!finalPayload) {
+      if (!cfg.fallbackToLocalFunnel && cfg.enabled) {
+        return res.status(503).json({
+          error: 'n8n indisponível no momento.',
+          reply: 'O fluxo n8n local não respondeu no momento. Você pode falar diretamente com nossa equipe pelo WhatsApp **(48) 99198-4678**.',
+          suggestedActions: [
+            { label: 'Chamar no WhatsApp', url: 'https://wa.me/5548991984678' }
+          ]
+        });
+      }
+      finalPayload = buildLocalConsultorResponse(cleanMessage, step, funnelData);
+      engineUsed = 'local-funnel-fallback';
+    }
+
+    // 3. Persist conversation & lead into CRM (conversations.json)
+    if (sessionId) {
+      try {
+        const convs = getStoredConversations();
+        const now = new Date().toISOString();
+        const fData: ConsultorFunnelData = finalPayload.funnelData || funnelData || {};
+        const convIndex = convs.findIndex((c: any) => c.id === sessionId);
+
+        const contactObj = {
+          name: fData.nome || `Visitante Funil (${sessionId.slice(-4)})`,
+          company: fData.empresa || (fData.objetivo ? `Objetivo: ${fData.objetivo}` : `Origem: ${sourcePage}`),
+          email: '',
+          phone: fData.whatsapp || '',
+          socialMedia: '',
+          city: fData.cidade || 'Visitante Online',
+          state: 'BR'
+        };
+
+        const stageValue = finalPayload.nextStep === 'resumo'
+          ? 'qualificado'
+          : (fData.whatsapp || fData.nome)
+            ? 'qualificado'
+            : 'novo_lead';
+
+        if (convIndex === -1) {
+          convs.unshift({
+            id: sessionId,
+            contact: contactObj,
+            status: 'active',
+            stage: stageValue,
+            assignedTo: 'ozzy_ai',
+            channel: 'web_chat',
+            tags: ['#consultor-funil', `#engine-${engineUsed}`, ...(fData.objetivo ? [`#${fData.objetivo.toLowerCase().split(' ')[0]}`] : [])],
+            dealValue: fData.objetivo?.toLowerCase().includes('sistema') ? 2890 : 1890,
+            unreadCount: 1,
+            isStarred: finalPayload.nextStep === 'resumo',
+            sourcePage,
+            lastMessage: cleanMessage || fData.objetivo || 'Iniciou Consultor Virtual',
+            lastMessageAt: now,
+            createdAt: now,
+            messages: [
+              ...(cleanMessage ? [{
+                id: `msg-u-${Date.now()}`,
+                role: 'user',
+                senderName: contactObj.name,
+                content: cleanMessage,
+                timestamp: now,
+                channel: 'web_chat'
+              }] : []),
+              {
+                id: `msg-a-${Date.now() + 1}`,
+                role: 'assistant',
+                senderName: engineUsed === 'n8n-vps' ? 'Consultor Virtual (n8n)' : 'Consultor Virtual',
+                content: finalPayload.reply,
+                timestamp: now,
+                channel: 'web_chat',
+                suggestedActions: finalPayload.suggestedActions || []
+              }
+            ]
+          });
+        } else {
+          const existing = convs[convIndex];
+          existing.lastMessage = cleanMessage || existing.lastMessage;
+          existing.lastMessageAt = now;
+          existing.contact = {
+            ...existing.contact,
+            name: fData.nome || existing.contact?.name,
+            company: fData.empresa || existing.contact?.company,
+            phone: fData.whatsapp || existing.contact?.phone,
+            city: fData.cidade || existing.contact?.city
+          };
+          if (stageValue === 'qualificado') existing.stage = 'qualificado';
+          if (finalPayload.nextStep === 'resumo') existing.isStarred = true;
+          if (!Array.isArray(existing.messages)) existing.messages = [];
+          if (cleanMessage) {
+            existing.messages.push({
+              id: `msg-u-${Date.now()}`,
+              role: 'user',
+              senderName: existing.contact?.name || 'Visitante',
+              content: cleanMessage,
+              timestamp: now,
+              channel: 'web_chat'
+            });
+          }
+          existing.messages.push({
+            id: `msg-a-${Date.now() + 1}`,
+            role: 'assistant',
+            senderName: engineUsed === 'n8n-vps' ? 'Consultor Virtual (n8n)' : 'Consultor Virtual',
+            content: finalPayload.reply,
+            timestamp: now,
+            channel: 'web_chat',
+            suggestedActions: finalPayload.suggestedActions || []
+          });
+          convs[convIndex] = existing;
+        }
+        saveConversations(convs);
+      } catch (crmErr) {
+        console.error('Error syncing consultor conversation to CRM:', crmErr);
+      }
+    }
+
+    return res.json(finalPayload);
+  } catch (error: any) {
+    console.error('Error in /api/consultor/chat:', error);
+    return res.status(500).json({
+      error: 'Erro interno ao processar Consultor Virtual.',
+      reply: 'Tivemos uma instabilidade momentânea. Fale diretamente com nossa equipe no WhatsApp **(48) 99198-4678**.',
+      suggestedActions: [{ label: 'Chamar no WhatsApp', url: 'https://wa.me/5548991984678' }]
     });
   }
 });
